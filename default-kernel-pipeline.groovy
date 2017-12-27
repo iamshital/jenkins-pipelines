@@ -12,10 +12,10 @@ def vmSizes = vmSizes
 //Details will added to Jenkins credentials later, once we have pipeline ready and stable.
 def UbuntuARMImage="Canonical UbuntuServer 16.04-LTS latest"
 def ShortDistroName="PPU16"   
-def CurrentTestName
 
 def RunPowershellCommand(psCmd) {
     bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;$psCmd;EXIT \$global:LastExitCode\""
+    //println "${psCmd}"
 }
 
 
@@ -24,9 +24,10 @@ stage ('SRIOV Network Tests')
 {
 	def NetworkTestSuites_SRIOV = [:]
 	int i = 0
-	CurrentTestName = "NTTTCP SRIOV"
+	def CurrentTestName = "NTTTCP SRIOV"
 	if ( "${NTTTCP_SRIOV}" == 'true' ) 
 	{
+		
 		NetworkTestSuites_SRIOV["${CurrentTestName}"] = 
 		{
 			try
@@ -34,7 +35,7 @@ stage ('SRIOV Network Tests')
 				stage ("${CurrentTestName}") 
 				{
 					println "Running ${CurrentTestName}..."
-					node('ostcjenkins-azure') 
+					node('azure') 
 					{			
 						withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 						{						
@@ -83,13 +84,13 @@ stage ('SRIOV Network Tests')
 				stage ("${CurrentTestName}") 
 				{
 					println "Running ${CurrentTestName}..."
-					node('ostcjenkins-azure') 
+					node('azure') 
 					{
 						withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 						{						
 							git "https://github.com/iamshital/azure-linux-automation.git"
 							RunPowershellCommand(".\\RunAzureTests.ps1" + 
-							" -testLocation 'westus'" +
+							" -testLocation 'westus2'" +
 							" -DistroIdentifier '${ShortDistroName}-LGDKSR'" +
 							" -testCycle 'PERF-LAGSCOPE'" +
 							" -OverrideVMSize 'Standard_D15_v2'" +
@@ -131,13 +132,13 @@ stage ('SRIOV Network Tests')
 				stage ("${CurrentTestName}") 
 				{
 					println "Running ${CurrentTestName}..."
-					node('ostcjenkins-azure') 
+					node('azure') 
 					{
 						withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 						{						
 							git "https://github.com/iamshital/azure-linux-automation.git"
 							RunPowershellCommand(".\\RunAzureTests.ps1" + 
-							" -testLocation 'westus'" +
+							" -testLocation 'westus2'" +
 							" -DistroIdentifier '${ShortDistroName}-LGDKSR'" +
 							" -testCycle 'PERF-IPERF3-SINGLE-CONNECTION'" +
 							" -OverrideVMSize 'Standard_D15_v2'" +
@@ -183,9 +184,10 @@ stage ('Synthetic Network Tests')
 	int i = 0
 	//Stage BVT
 	
-	CurrentTestName = "NTTTCP Synthetic"
+	def CurrentTestName = "NTTTCP Synthetic"
 	if ( "${NTTTCP_Synthetic}" == 'true' ) 
 	{
+		
 		NetworkTestSuites_Synthetic["${CurrentTestName}"] = 
 		{
 			try
@@ -193,13 +195,13 @@ stage ('Synthetic Network Tests')
 				stage ("${CurrentTestName}") 
 				{
 					println "Running ${CurrentTestName}..."
-					node('ostcjenkins-azure') 
+					node('azure') 
 					{
 						withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 						{						
 							git "https://github.com/iamshital/azure-linux-automation.git"
 							RunPowershellCommand(".\\RunAzureTests.ps1" + 
-							" -testLocation 'westus'" +
+							" -testLocation 'westus2'" +
 							" -DistroIdentifier '${ShortDistroName}-NTDKSN'" +
 							" -testCycle 'PERF-NTTTCP'" +
 							" -OverrideVMSize 'Standard_D15_v2'" +
@@ -232,6 +234,7 @@ stage ('Synthetic Network Tests')
 	CurrentTestName = "LAGSCOPE Synthetic"
 	if ( "${LAGSCOPE_Synthetic}" == 'true' ) 
 	{
+		
 		NetworkTestSuites_Synthetic["${CurrentTestName}"] = 
 		{                      
 			try
@@ -239,13 +242,13 @@ stage ('Synthetic Network Tests')
 				stage ("${CurrentTestName}") 
 				{
 					println "Running ${CurrentTestName}..."
-					node('ostcjenkins-azure') 
+					node('azure') 
 					{
 						withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 						{	
 							git "https://github.com/iamshital/azure-linux-automation.git"
 							RunPowershellCommand(".\\RunAzureTests.ps1" + 
-							" -testLocation 'westus'" +
+							" -testLocation 'westus2'" +
 							" -DistroIdentifier '${ShortDistroName}-LGDKSR'" +
 							" -testCycle 'PERF-LAGSCOPE'" +
 							" -OverrideVMSize 'Standard_D15_v2'" +
@@ -288,7 +291,7 @@ stage ('Storage Performance')
 	Storage_Premium = [:]
 	int i = 0
 	
-	CurrentTestName = "FIO 4K I/0"
+	def CurrentTestName = "FIO 4K I/0"
 	if ( "${FIO_12Disks}" == 'true' ) 
 	{
 		
@@ -299,7 +302,7 @@ stage ('Storage Performance')
 				stage ("${CurrentTestName}") 
 				{
 					println "Running ${CurrentTestName}..."
-					node('ostcjenkins-azure') 
+					node('azure') 
 					{
 						withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 						{						
@@ -335,6 +338,7 @@ stage ('Storage Performance')
 	{
 		println "You skipped ${CurrentTestName} tests."
 	}	
+	
 	CurrentTestName = "FIO 1024K I/0"
 	if ( "${FIO_12Disks}" == 'true' ) 
 	{
@@ -346,7 +350,7 @@ stage ('Storage Performance')
 				stage ("${CurrentTestName}") 
 				{
 					println "Running ${CurrentTestName}..."
-					node('ostcjenkins-azure') 
+					node('azure') 
 					{
 						withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 						{						
@@ -405,7 +409,7 @@ allvmSizes.each
 		{
 
 			Standard_D64_v3 = [:]
-			CurrentTestName = "NTTTCP Synthetic"
+			def CurrentTestName = "NTTTCP Synthetic"
 			Standard_D64_v3["${CurrentTestName}"] = 
 			{
 				try
@@ -413,13 +417,13 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
 								git "https://github.com/iamshital/azure-linux-automation.git"
 								RunPowershellCommand(".\\RunAzureTests.ps1" + 
-								" -testLocation 'westus'" +
+								" -testLocation 'westus2'" +
 								" -DistroIdentifier '${ShortDistroName}-D64NTDKSN'" +
 								" -testCycle 'PERF-NTTTCP'" +
 								" -OverrideVMSize '${currentVMsize}'" +
@@ -451,7 +455,7 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
@@ -491,7 +495,7 @@ allvmSizes.each
 		{
 
 			Standard_E64_v3 = [:]
-			CurrentTestName = "NTTTCP Synthetic"
+			def CurrentTestName = "NTTTCP Synthetic"
 			Standard_E64_v3["${CurrentTestName}"] = 
 			{
 				try
@@ -499,13 +503,13 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
 								git "https://github.com/iamshital/azure-linux-automation.git"
 								RunPowershellCommand(".\\RunAzureTests.ps1" + 
-								" -testLocation 'westus'" +
+								" -testLocation 'westus2'" +
 								" -DistroIdentifier '${ShortDistroName}-E64NTDKSN'" +
 								" -testCycle 'PERF-NTTTCP'" +
 								" -OverrideVMSize '${currentVMsize}'" +
@@ -537,7 +541,7 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
@@ -577,7 +581,7 @@ allvmSizes.each
 		{
 
 			Standard_M64ms = [:]
-			CurrentTestName = "NTTTCP Synthetic"
+			def CurrentTestName = "NTTTCP Synthetic"
 			Standard_M64ms["${CurrentTestName}"] = 
 			{
 				try
@@ -585,13 +589,13 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
 								git "https://github.com/iamshital/azure-linux-automation.git"
 								RunPowershellCommand(".\\RunAzureTests.ps1" + 
-								" -testLocation 'westus'" +
+								" -testLocation 'westus2'" +
 								" -DistroIdentifier '${ShortDistroName}-M64NTDKSN'" +
 								" -testCycle 'PERF-NTTTCP'" +
 								" -OverrideVMSize '${currentVMsize}'" +
@@ -623,7 +627,7 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
@@ -663,7 +667,7 @@ allvmSizes.each
 		{
 
 			Standard_G5 = [:]
-			CurrentTestName = "NTTTCP Synthetic"
+			def CurrentTestName = "NTTTCP Synthetic"
 			Standard_G5["${CurrentTestName}"] = 
 			{
 				try
@@ -671,13 +675,13 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
 								git "https://github.com/iamshital/azure-linux-automation.git"
 								RunPowershellCommand(".\\RunAzureTests.ps1" + 
-								" -testLocation 'westus'" +
+								" -testLocation 'westus2'" +
 								" -DistroIdentifier '${ShortDistroName}-G5NTDKSN'" +
 								" -testCycle 'PERF-NTTTCP'" +
 								" -OverrideVMSize '${currentVMsize}'" +
@@ -709,7 +713,7 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "SRIOV is not supported for : ${CurrentTestName}!"
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							//withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							//{						
@@ -749,7 +753,7 @@ allvmSizes.each
 		{
 
 			Standard_M128s = [:]
-			CurrentTestName = "NTTTCP Synthetic"
+			def CurrentTestName = "NTTTCP Synthetic"
 			Standard_M128s["${CurrentTestName}"] = 
 			{
 				try
@@ -757,13 +761,13 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
 								git "https://github.com/iamshital/azure-linux-automation.git"
 								RunPowershellCommand(".\\RunAzureTests.ps1" + 
-								" -testLocation 'westus'" +
+								" -testLocation 'westus2'" +
 								" -DistroIdentifier '${ShortDistroName}-M128NTDKSN'" +
 								" -testCycle 'PERF-NTTTCP'" +
 								" -OverrideVMSize '${currentVMsize}'" +
@@ -795,7 +799,7 @@ allvmSizes.each
 					stage ("${CurrentTestName}") 
 					{
 						println "Running ${CurrentTestName}..."
-						node('ostcjenkins-azure') 
+						node('azure') 
 						{
 							withCredentials([file(credentialsId: 'Azure_Secrets_File', variable: 'Azure_Secrets_File')]) 
 							{						
@@ -828,5 +832,5 @@ allvmSizes.each
 			}			
 			parallel Standard_M128s
 		}
-	}	
+	}
 }
