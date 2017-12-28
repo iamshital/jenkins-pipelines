@@ -139,13 +139,13 @@ stage ('SRIOV Network Tests')
 							git "https://github.com/iamshital/azure-linux-automation.git"
 							RunPowershellCommand(".\\RunAzureTests.ps1" + 
 							" -testLocation 'westus2'" +
-							" -DistroIdentifier '${ShortDistroName}-LGDKSR'" +
+							" -DistroIdentifier '${ShortDistroName}-IP1DKSR'" +
 							" -testCycle 'PERF-IPERF3-SINGLE-CONNECTION'" +
 							" -OverrideVMSize 'Standard_D15_v2'" +
 							" -ARMImageName '${UbuntuARMImage}'" +
 							" -StorageAccount 'ExistingStorage_Standard'" +
 							" -ResultDBTable 'Perf_Network_Single_TCP_Azure_DefaultKernel'" +
-							" -ResultDBTestTag 'LAGSCOPE-TEST'" +
+							" -ResultDBTestTag 'IPERF-SINGLE-CONNECTION-TEST'" +
 							" -EnableAcceleratedNetworking" +
 							" -ForceDeleteResources "							
 							)
