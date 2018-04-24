@@ -1,12 +1,31 @@
-stage ("Stop")
-{
-  node ("azure")
-  {
-    println(HostBuildPath)
-    println(ClusterName)
-    println(VMSize)
-    println(TipSessionId)
-    println(Tests)
-    println(DataPath)
-  }
+#!/usr/bin/env groovy
+
+def RunPowershellCommand(psCmd) {
+    bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;$psCmd;EXIT \$global:LastExitCode\""
+}
+
+stage("Prerequisite") {
+    timeout(120) {
+        node("master") {
+            cleanWs()
+            git "https://github.com/iamshital/azure-linux-automation.git"
+            stash includes: '**', name: 'azure-linux-automation'
+        }
+    }
+}
+Tests = Tests.split(",")
+
+
+stage("Stop") {
+    node("azure") {
+        println(HostBuildPath)
+        println(ClusterName)
+        println(VMSize)
+        println(TipSessionId)
+        println(Tests)
+        println(DataPath)
+        for (currentTest in Tests) {
+            println(currentTest)
+        }
+    }
 }
