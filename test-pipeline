@@ -1,14 +1,12 @@
-stage ("Start")
-{
-  node ("azure")
-  {
-    println ("Start")
-  }
-}
 stage ("Stop")
 {
   node ("azure")
   {
-    println ("Stop")
+    println(HostBuildPath)
+    println(ClusterName)
+    println(VMSize)
+    println(TipSessionId)
+    println(Tests)
+    println(DataPath)
   }
 }
