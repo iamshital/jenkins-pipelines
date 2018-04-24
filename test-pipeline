@@ -1,0 +1,14 @@
+stage ("Start")
+{
+  node ("azure")
+  {
+    println ("Start")
+  }
+}
+stage ("Stop")
+{
+  node ("azure")
+  {
+    println ("Stop")
+  }
+}
